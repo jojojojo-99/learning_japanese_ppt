@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kana-Flow 教學簡報｜零基礎情境日語生存指南（完整知識庫版）</title>
+    <style>
+        :root {
+            --bg-main: #f4f1ea;
+            --slide-bg: #ffffff;
+            --primary: #5e6e58;    /* 莫蘭迪綠 */
+            --secondary: #8b7e91;  /* 莫蘭迪紫 */
+            --accent: #d48c6a;     /* 暖陶橘 */
+            --text-dark: #2f3230;
+            --text-muted: #686d69;
+            --border-soft: #e8e4da;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 頂部進度條 */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: #e0dcd3;
+            flex-shrink: 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            width: 8.33%;
+            transition: width 0.3s ease;
+        }
+
+        /* 簡報主舞台 */
+        .stage {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 28px;
+            overflow: hidden;
+        }
+        .slide {
+            background: var(--slide-bg);
+            width: 100%;
+            max-width: 1040px;
+            min-height: 540px;
+            max-height: 100%;
+            border-radius: 18px;
+            box-shadow: 0 12px 32px rgba(47, 50, 48, 0.08);
+            padding: 36px 46px;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 20px;
+            overflow-y: auto;
+            animation: fadeIn 0.25s ease;
+        }
+        .slide.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 標籤與標題 */
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .wiki-badge {
+            display: inline-block;
+            background: #eef2ec;
+            color: var(--primary);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+        .loop-badge {
+            display: inline-block;
+            background: #f3eff5;
+            color: var(--secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+        }
+        h1 {
+            font-size: 2.25rem;
+            color: var(--primary);
+            margin: 4px 0 10px 0;
+            line-height: 1.25;
+            letter-spacing: -0.01em;
+        }
+        h2 {
+            font-size: 1.55rem;
+            color: var(--primary);
+            margin: 0 0 10px 0;
+            border-bottom: 2px solid #f0ede6;
+            padding-bottom: 8px;
+        }
+        p.subtitle {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.65;
+        }
+        code {
+            background: #f3f1ec;
+            padding: 2px 6px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: var(--text-dark);
+        }
+
+        /* 卡片網格：等高對齊 */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; align-items: stretch; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch; }
+        .info-card {
+            background: #faf9f6;
+            border: 1px solid var(--border-soft);
+            border-radius: 14px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .info-card h3 {
+            margin: 0;
+            color: var(--secondary);
+            font-size: 1.08rem;
+            line-height: 1.4;
+        }
+        .info-card p {
+            margin: 0;
+            font-size: 0.94rem;
+            line-height: 1.6;
+            color: var(--text-dark);
+        }
+        .card-example {
+            margin-top: auto;
+            padding-top: 8px;
+            border-top: 1px dashed #e3dfd5;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* 記憶錨點與 Critic 提示框 */
+        .mnemonic-tip {
+            background: #fdf4ef;
+            border-left: 4px solid var(--accent);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            color: #5c3d2e;
+            line-height: 1.6;
+        }
+        .critic-box {
+            background: #f5f2f7;
+            border-left: 4px solid var(--secondary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.92rem;
+            color: #3e3545;
+            line-height: 1.6;
+        }
+
+        /* 緊湊型高密度資料表 */
+        table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        th, td { padding: 7px 10px; text-align: left; border-bottom: 1px solid #eeeae2; font-size: 0.88rem; }
+        th { background: #f4f6f3; color: var(--primary); font-weight: bold; }
+        tr:hover td { background: #faf9f6; }
+
+        /* 底部控制列 */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 36px;
+            background: #ffffff;
+            border-top: 1px solid #e6e2d8;
+            flex-shrink: 0;
+        }
+        .nav-group { display: flex; gap: 10px; align-items: center; }
+        .nav-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .nav-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .nav-btn:hover:not(:disabled) { opacity: 0.88; }
+        select.slide-jump {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #d5d0c5;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            background: #faf9f6;
+        }
+
+        /* 測驗區樣式 */
+        .quiz-opt {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 11px 16px;
+            margin: 8px 0;
+            background: #f7f6f2;
+            border: 1px solid #dcd8ce;
+            border-radius: 8px;
+            font-size: 0.98rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .quiz-opt:hover:not(:disabled) { background: #eef2ec; border-color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .slide { padding: 24px 22px; min-height: auto; }
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+            h1 { font-size: 1.75rem; }
+            .controls { padding: 10px 16px; flex-wrap: wrap; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+
+<div class="stage">
+
+    <!-- Slide 1: 封面 -->
+    <div class="slide active">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Single Source of Truth: kana-flow-wiki/ (5 Ingested Notes)</span>
+                <span class="loop-badge">Dual-Loop Verified Presentation</span>
+            </div>
+            <h1>零基礎情境日語生存指南</h1>
+            <p class="subtitle">本教學簡報完整萃取自 <code>wiki/</code> 知識庫的 <strong>5 篇結構化筆記</strong>（完整清音五十音視覺聯想表 + 四大高頻生活場景共 <strong>80 則</strong>實戰語彙），專為日語新手設計，從零開始建立系統化語感。</p>
+        </div>
+
+        <div class="grid-3">
+            <div class="info-card">
+                <h3>01. 五十音視覺錨點</h3>
+                <p>收錄完整 10 行清音（A~WA 行）平片假名對照，結合生活物件聯想法與雙胞胎字形辨析。</p>
+            </div>
+            <div class="info-card">
+                <h3>02~05. 四大場景 80 句</h3>
+                <p>涵蓋<strong>校園互動、機場通關、藥妝購物、日常社交</strong>四大現場，每場景完整收錄 20 則核心語彙。</p>
+            </div>
+            <div class="info-card">
+                <h3>Wiki 隨機驗收測驗</h3>
+                <p>內建與 5 篇 Wiki 連動的無限抽題測驗，每題皆附帶記憶錨點與 Critic 易錯提醒。</p>
+            </div>
+        </div>
+
+        <div class="mnemonic-tip">
+            <strong>操作提示：</strong>可使用鍵盤 <code>←</code> / <code>→</code> 方向鍵快速翻頁，或使用右下角「章節快速跳轉選單」直接切換至指定投影片。
+        </div>
+    </div>
+
+    <!-- Slide 2: 基礎概念 -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/01-kana-visual-mnemonics.md</span>
+                <span class="loop-badge">Concept Overview</span>
+            </div>
+            <h2>一、 零基礎破冰：日文文字的三重奏與記憶策略</h2>
+            <p class="subtitle">根據 Wiki 痛點分析，初學者常因「平假名與片假名長相完全不同」而受挫。先理解三種文字的分工，學習效率立刻翻倍：</p>
+        </div>
+
+        <div class="grid-3">
+            <div class="info-card">
+                <h3>漢字 (Kanji)</h3>
+                <p>傳自中文，負責表達句子的<strong>核心語意</strong>（名詞、動詞詞幹）。</p>
+                <div class="card-example">例：<code>先生</code>、<code>空港</code>、<code>割引</code></div>
+            </div>
+            <div class="info-card">
+                <h3>平假名 (Hiragana)</h3>
+                <p>字形圓潤，用來標示<strong>文法助詞、詞尾變化</strong>與日本本土詞彙。</p>
+                <div class="card-example">例：<code>ください</code>、<code>はじめまして</code></div>
+            </div>
+            <div class="info-card">
+                <h3>片假名 (Katakana)</h3>
+                <p>字形剛硬有稜角，專門用來拼寫<strong>外來語</strong>（英文音譯）。</p>
+                <div class="card-example">例：<code>パスポート</code>、<code>ノート</code></div>
+            </div>
+        </div>
+
+        <div class="critic-box">
+            <strong>Critic 檢查點（易混淆陷阱）：</strong><br>
+            1. <strong>長音符號「ー」</strong>：片假名出現橫槓 <code>ー</code>（如 <code>パスポート pasupōto</code>）時，必須將前一個母音拉長一拍，不可省略。<br>
+            2. <strong>字形雙胞胎</strong>：<code>シ (shi)</code> 與 <code>ツ (tsu)</code>、<code>ソ (so)</code> 與 <code>ン (n)</code> 的點與提筆方向相反，需搭配下一頁的視覺錨點區分。
+        </div>
+    </div>
+
+    <!-- Slide 3: 完整五十音視覺聯想表 (10行全收錄) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/01-kana-visual-mnemonics.md (完整 10 行清音)</span>
+                <span class="loop-badge">Visual Mnemonic Anchors</span>
+            </div>
+            <h2>二、 完整清音五十音 & 片假名生活物件聯想表</h2>
+            <table>
+                <thead>
+                    <tr><th style="width:10%">行別</th><th style="width:18%">平假名</th><th style="width:18%">片假名</th><th style="width:16%">羅馬拼音</th><th>生活物件與視覺記憶錨點 (Mnemonic Anchor)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>A 行</strong></td><td>あ い う え お</td><td><strong>ア イ ウ エ オ</strong></td><td>a, i, u, e, o</td><td><code>ア</code>阿媽側臉；<code>イ</code>單人椅子(Isu)；<code>ウ</code>戴帽屋簷；<code>エ</code>工廠「工」字；<code>オ</code>雙手交叉喊「哦！」</td></tr>
+                    <tr><td><strong>KA 行</strong></td><td>か き く け こ</td><td><strong>カ キ ク ケ コ</strong></td><td>ka, ki, ku, ke, ko</td><td><code>カ</code>台語「咖」；<code>キ</code>鑰匙齒痕(Key)；<code>ク</code>「久」少一捺；<code>ケ</code>竹子一半；<code>コ</code>方形口框</td></tr>
+                    <tr><td><strong>SA 行</strong></td><td>さ し す せ そ</td><td><strong>サ シ ス セ ソ</strong></td><td>sa, shi, su, se, so</td><td><code>サ</code>撐開雨傘；<code>シ</code>臉上三根毛(由下往上勾)；<code>ス</code>溜滑梯；<code>セ</code>「世」界簡寫；<code>ソ</code>倒V鳥嘴</td></tr>
+                    <tr><td><strong>TA 行</strong></td><td>た ち つ て と</td><td><strong>タ チ ツ テ ト</strong></td><td>ta, chi, tsu, te, to</td><td><code>タ</code>夕陽「夕」；<code>チ</code>數字「千」；<code>ツ</code>三片生魚片刺身(由上往下點)；<code>テ</code>鐵釘；<code>ト</code>鳥居側邊</td></tr>
+                    <tr><td><strong>NA 行</strong></td><td>な に ぬ ね の</td><td><strong>ナ ニ ヌ ネ ノ</strong></td><td>na, ni, nu, ne, no</td><td><code>ナ</code>十字架；<code>ニ</code>數字「二」；<code>ヌ</code>「奴」隸右半；<code>ネ</code>蝴蝶結禮物；<code>ノ</code>「之」字一撇</td></tr>
+                    <tr><td><strong>HA 行</strong></td><td>は ひ ふ へ ほ</td><td><strong>ハ ヒ フ ヘ ホ</strong></td><td>ha, hi, fu, he, ho</td><td><code>ハ</code>數字「八」；<code>ヒ</code>一把匕首；<code>フ</code>「不」字一角；<code>へ</code>尖尖山峰；<code>ホ</code>「木」頭人</td></tr>
+                    <tr><td><strong>MA 行</strong></td><td>ま み む め も</td><td><strong>マ ミ ム メ モ</strong></td><td>ma, mi, mu, me, mo</td><td><code>マ</code>奔跑的「馬」；<code>ミ</code>三條平行線；<code>ム</code>私「厶」符號；<code>メ</code>「女」字交叉；<code>モ</code>「毛」髮</td></tr>
+                    <tr><td><strong>YA 行</strong></td><td>や ゆ よ</td><td><strong>ヤ ユ ヨ</strong></td><td>ya, yu, yo</td><td><code>ヤ</code>大象長「牙」；<code>ユ</code>「由」字框架；<code>ヨ</code>手寫「彐」字</td></tr>
+                    <tr><td><strong>RA 行</strong></td><td>ら り る れ ろ</td><td><strong>ラ リ ル レ ロ</strong></td><td>ra, ri, ru, re, ro</td><td><code>ラ</code>「拉」開抽屜；<code>リ</code>「利」刀旁；<code>ル</code>水「流」分叉；<code>レ</code>呆住張嘴；<code>ロ</code>正方形「口」</td></tr>
+                    <tr><td><strong>WA 行</strong></td><td>わ を ん</td><td><strong>ワ ヲ ン</strong></td><td>wa, o, n</td><td><code>ワ</code>張大嘴喊「哇」；<code>ヲ</code>彎腰鞠躬；<code>ン</code>鼻音點勾(由下往上)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 4: 場景 1 (Part 1: 1~10) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/02-campus-survival.md (1~10 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 1)</span>
+            </div>
+            <h2>三、 校園與課堂互動用語 (1/2：師生稱謂與課堂指令)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>先生 (せんせい)</strong></td><td>sensei</td><td>老師 / 教授</td><td>尊稱師長，<strong>不可用來稱呼自己</strong></td></tr>
+                    <tr><td>2</td><td><strong>友達 (ともだち)</strong></td><td>tomodachi</td><td>朋友</td><td>校園同儕互動核心詞</td></tr>
+                    <tr><td>3</td><td><strong>教科書 (きょうかしょ)</strong></td><td>kyōkasho</td><td>課本</td><td>教學用的書籍</td></tr>
+                    <tr><td>4</td><td><strong>ノート</strong></td><td>nōto</td><td>筆記本</td><td>英文 Note 片假名音譯</td></tr>
+                    <tr><td>5</td><td><strong>宿題 (しゅくだい)</strong></td><td>shukudai</td><td>作業 / 功課</td><td>在家裡完成的題目</td></tr>
+                    <tr><td>6</td><td><strong>試験 (しけん)</strong></td><td>shiken</td><td>考試</td><td>漢字「試驗」即考試</td></tr>
+                    <tr><td>7</td><td><strong>教室 (きょうしつ)</strong></td><td>kyōshitsu</td><td>教室</td><td>上課的房間</td></tr>
+                    <tr><td>8</td><td><strong>黒板 (こくばん)</strong></td><td>kokuban</td><td>黑板</td><td>黑色的板子</td></tr>
+                    <tr><td>9</td><td><strong>わかりました</strong></td><td>wakarimashita</td><td>我明白了 / 知道了</td><td>聽懂老師指令時的禮貌確認</td></tr>
+                    <tr><td>10</td><td><strong>質問があります</strong></td><td>shitsumon ga arimasu</td><td>我有問題</td><td>舉手發問標準開場白</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 5: 場景 1 (Part 2: 11~20) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/02-campus-survival.md (11~20 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 2)</span>
+            </div>
+            <h2>三、 校園與課堂互動用語 (2/2：求助句型與校園生活)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>11</td><td><strong>お願いします</strong></td><td>onegaishimasu</td><td>拜託了 / 請多指教</td><td>萬用禮貌請求結尾語</td></tr>
+                    <tr><td>12</td><td><strong>遅刻します</strong></td><td>chikoku shimasu</td><td>我要遲到了</td><td>傳訊息向老師或同學報備</td></tr>
+                    <tr><td>13</td><td><strong>ペンを貸してください</strong></td><td>pen o kashite kudasai</td><td>請借我筆</td><td><code>pen</code> (筆) + <code>kashite</code> (借出)</td></tr>
+                    <tr><td>14</td><td><strong>もう一度お願いします</strong></td><td>mō ichido onegaishimasu</td><td>請再說一次</td><td>沒聽清楚語速時的救命句</td></tr>
+                    <tr><td>15</td><td><strong>休み時間</strong></td><td>yasumi jikan</td><td>下課時間 / 休息時間</td><td><code>yasumi</code> 為休息之意</td></tr>
+                    <tr><td>16</td><td><strong>時間割 (じかんわり)</strong></td><td>jikanwari</td><td>課表</td><td>劃分每節課時間的表格</td></tr>
+                    <tr><td>17</td><td><strong>鉛筆 (えんぴつ)</strong></td><td>enpitsu</td><td>鉛筆</td><td>文具基本單字</td></tr>
+                    <tr><td>18</td><td><strong>消しゴム</strong></td><td>keshigomu</td><td>橡皮擦</td><td><code>keshi</code> (擦除) + <code>gomu</code> (橡膠)</td></tr>
+                    <tr><td>19</td><td><strong>図書館 (としょかん)</strong></td><td>toshokan</td><td>圖書館</td><td>自習與借書場所</td></tr>
+                    <tr><td>20</td><td><strong>卒業 (そつぎょう)</strong></td><td>sotsugyō</td><td>畢業</td><td>完成學業</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="critic-box">
+            <strong>Critic 檢查點：</strong>羅馬拼音長音統一使用 macron 符號（如 <code>kyōkasho</code>、<code>mō</code>、<code>sotsugyō</code>），確保全系列教材發音標示一致。
+        </div>
+    </div>
+
+    <!-- Slide 6: 場景 2 (Part 1: 1~10) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/03-airport-immigration.md (1~10 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 1)</span>
+            </div>
+            <h2>四、 機場通關與搭機生存術 (1/2：證件、登機與選位)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>パスポート</strong></td><td>pasupōto</td><td>護照</td><td>英文 Passport 音譯（注意長音 <code>ō</code>）</td></tr>
+                    <tr><td>2</td><td><strong>搭乗口 (とうじょうぐち)</strong></td><td>tōjōguchi</td><td>登機門</td><td>「搭乘的口」＝ 登機口</td></tr>
+                    <tr><td>3</td><td><strong>免税店 (めんぜいてん)</strong></td><td>menzeiten</td><td>免稅店</td><td>機場購物區必看漢字</td></tr>
+                    <tr><td>4</td><td><strong>手荷物受取所</strong></td><td>tenimotsu uketorisho</td><td>行李提領處</td><td>「受取」在日文為領取之意</td></tr>
+                    <tr><td>5</td><td><strong>飛行機 (ひこうき)</strong></td><td>hikōki</td><td>飛機</td><td>在天空飛行的機器</td></tr>
+                    <tr><td>6</td><td><strong>チケット</strong></td><td>chiketto</td><td>機票 / 車票</td><td>英文 Ticket 音譯</td></tr>
+                    <tr><td>7</td><td><strong>座席 (ざせき)</strong></td><td>zaseki</td><td>座位</td><td>登機證上的座位標示</td></tr>
+                    <tr><td>8</td><td><strong>窓側 (まどがわ)</strong></td><td>madogawa</td><td>靠窗座位</td><td><code>mado</code> 是窗戶</td></tr>
+                    <tr><td>9</td><td><strong>通路側 (つうろがわ)</strong></td><td>tsūrogawa</td><td>靠走道座位</td><td><code>tsūro</code> 是通道</td></tr>
+                    <tr><td>10</td><td><strong>出口 (でぐち)</strong></td><td>deguchi</td><td>出口</td><td><code>de</code> (出) + <code>guchi</code> (口)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 7: 場景 2 (Part 2: 11~20) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/03-airport-immigration.md (11~20 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 2)</span>
+            </div>
+            <h2>四、 機場通關與搭機生存術 (2/2：海關、行李與航班動態)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>11</td><td><strong>入国審査</strong></td><td>nyūkoku shinsa</td><td>入境審查 / 海關</td><td>抵達日本的第一道關卡</td></tr>
+                    <tr><td>12</td><td><strong>荷物を預けます</strong></td><td>nimotsu o azukemasu</td><td>托運行李</td><td>櫃檯報到時使用</td></tr>
+                    <tr><td>13</td><td><strong>遅延しています</strong></td><td>chien shite imasu</td><td>航班延誤</td><td>看板出現「遅延」代表誤點</td></tr>
+                    <tr><td>14</td><td><strong>案内所 (あんないじょ)</strong></td><td>annaijo</td><td>詢問處 / 服務台</td><td>「案内」即引導、資訊服務</td></tr>
+                    <tr><td>15</td><td><strong>トイレはどこですか</strong></td><td>toire wa doko desu ka</td><td>洗手間在哪裡？</td><td>緊急問路必備句</td></tr>
+                    <tr><td>16</td><td><strong>税関 (ぜいかん)</strong></td><td>zeikan</td><td>海關申報</td><td>領完行李後的申報關口</td></tr>
+                    <tr><td>17</td><td><strong>保安検査</strong></td><td>hoan kensa</td><td>安全檢查 / 安檢</td><td>隨身行李 X 光檢查</td></tr>
+                    <tr><td>18</td><td><strong>出発 (しゅっぱつ)</strong></td><td>shuppatsu</td><td>出發</td><td>航班時刻表「出發」欄位</td></tr>
+                    <tr><td>19</td><td><strong>到着 (とうちゃく)</strong></td><td>tōchaku</td><td>抵達</td><td>航班時刻表「抵達」欄位</td></tr>
+                    <tr><td>20</td><td><strong>乗り換え</strong></td><td>norikae</td><td>轉機 / 換車</td><td>轉乘其他航班或電車</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="critic-box">
+            <strong>Critic 檢查點：</strong>「免税店」讀音為 <code>めんぜいてん (menzeiten)</code>，切勿誤讀為 <code>ぜんぜいてん</code>。
+        </div>
+    </div>
+
+    <!-- Slide 8: 場景 3 (Part 1: 1~10) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/04-shopping-taxfree.md (1~10 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 1)</span>
+            </div>
+            <h2>五、 藥妝服飾購物與退稅 (1/2：詢價、試穿與結帳)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>これをください</strong></td><td>kore o kudasai</td><td>請給我這個</td><td>手指商品點餐/購物萬用句</td></tr>
+                    <tr><td>2</td><td><strong>いくらですか</strong></td><td>ikura desu ka</td><td>這個多少錢？</td><td>詢問商品價格</td></tr>
+                    <tr><td>3</td><td><strong>袋は結構です</strong></td><td>fukuro wa kekkō desu</td><td>不用塑膠袋</td><td><code>kekkō</code> 在此為禮貌婉拒「不用了」</td></tr>
+                    <tr><td>4</td><td><strong>カードは使えますか</strong></td><td>kādo wa tsukaemasu ka</td><td>可以刷卡嗎？</td><td><code>kādo</code> (Card) 確認支付方式</td></tr>
+                    <tr><td>5</td><td><strong>免税できますか</strong></td><td>menzei dekimasu ka</td><td>可以退稅嗎？</td><td>滿額詢問退稅櫃檯</td></tr>
+                    <tr><td>6</td><td><strong>試着してもいいですか</strong></td><td>shichaku shite mo ii desu ka</td><td>可以試穿嗎？</td><td>服飾店詢問試穿</td></tr>
+                    <tr><td>7</td><td><strong>サイズはありますか</strong></td><td>saizu wa arimasu ka</td><td>有這個尺寸嗎？</td><td><code>saizu</code> (Size) 詢問尺碼</td></tr>
+                    <tr><td>8</td><td><strong>別々にしてください</strong></td><td>betsubetsu ni shite kudasai</td><td>請幫我們分開結帳</td><td>與朋友同行分開付款時</td></tr>
+                    <tr><td>9</td><td><strong>レシートをください</strong></td><td>reshīto o kudasai</td><td>請給我收據</td><td><code>reshīto</code> (Receipt) 索取發票收據</td></tr>
+                    <tr><td>10</td><td><strong>割引 (わりびき)</strong></td><td>waribiki</td><td>折扣 / 打折</td><td>看到「20%割引」即打八折</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 9: 場景 3 (Part 2: 11~20) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/04-shopping-taxfree.md (11~20 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 2)</span>
+            </div>
+            <h2>五、 藥妝服飾購物與退稅 (2/2：挑款、付款方式與售後)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>11</td><td><strong>おすすめは何ですか</strong></td><td>osusume wa nan desu ka</td><td>有什麼推薦的嗎？</td><td>請店員推薦熱門商品</td></tr>
+                    <tr><td>12</td><td><strong>他の色はありますか</strong></td><td>hoka no iro wa arimasu ka</td><td>有其他顏色嗎？</td><td><code>iro</code> 為顏色</td></tr>
+                    <tr><td>13</td><td><strong>ちょっと見ているだけです</strong></td><td>chotto mite iru dake desu</td><td>我只是隨便看看</td><td>店員熱情推銷時的禮貌回應</td></tr>
+                    <tr><td>14</td><td><strong>売り切れ (うりきれ)</strong></td><td>urikire</td><td>售罄 / 賣完</td><td>貨架貼出此牌代表已無庫存</td></tr>
+                    <tr><td>15</td><td><strong>ありがとうございました</strong></td><td>arigatō gozaimashita</td><td>謝謝惠顧</td><td>結帳完成離店時的禮貌道謝</td></tr>
+                    <tr><td>16</td><td><strong>現金 (げんきん)</strong></td><td>genkin</td><td>現金</td><td>僅收現金的店家常見標示</td></tr>
+                    <tr><td>17</td><td><strong>お釣り (おつり)</strong></td><td>otsuri</td><td>找零</td><td>付現時找回的零錢</td></tr>
+                    <tr><td>18</td><td><strong>試供品 (しきょうひん)</strong></td><td>shikyōhin</td><td>試用品 / 贈品</td><td>藥妝店免費試用包</td></tr>
+                    <tr><td>19</td><td><strong>新品 (しんぴん)</strong></td><td>shinpin</td><td>全新商品</td><td>非展示品的全新包裝</td></tr>
+                    <tr><td>20</td><td><strong>返品できますか</strong></td><td>henpin dekimasu ka</td><td>可以退貨嗎？</td><td>確認售後退換貨規則</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="critic-box">
+            <strong>Critic 檢查點：</strong>日文的「割引 (わりびき)」指的是<strong>折扣掉的成數</strong>（例如「3 割引」＝ 減去 3 成 ＝ 打 7 折），與中文「打 3 折」剛好相反。
+        </div>
+    </div>
+
+    <!-- Slide 10: 場景 4 (Part 1: 1~10) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/05-daily-social-chat.md (1~10 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 1)</span>
+            </div>
+            <h2>六、 初次見面與日常寒暄社交 (1/2：問候、慰勞與萬用回應)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>1</td><td><strong>はじめまして</strong></td><td>hajimemashite</td><td>初次見面請多指教</td><td>自我介紹第一句話</td></tr>
+                    <tr><td>2</td><td><strong>よろしくお願いします</strong></td><td>yoroshiku onegai shimasu</td><td>請多關照</td><td>自我介紹結尾必備</td></tr>
+                    <tr><td>3</td><td><strong>すごいですね！</strong></td><td>sugoi desu ne!</td><td>太厲害了吧！</td><td>稱讚與附和對方時使用</td></tr>
+                    <tr><td>4</td><td><strong>お疲れ様でした</strong></td><td>otsukaresama deshita</td><td>辛苦了</td><td>課程、活動或工作結束時慰勞彼此</td></tr>
+                    <tr><td>5</td><td><strong>すみません</strong></td><td>sumimasen</td><td>不好意思 / 借過 / 謝謝</td><td>日本最強萬用社交詞</td></tr>
+                    <tr><td>6</td><td><strong>大丈夫です</strong></td><td>daijōbu desu</td><td>沒關係 / 沒事 / 不用了</td><td>報平安或禮貌婉拒（如不用袋子）</td></tr>
+                    <tr><td>7</td><td><strong>楽しかったです</strong></td><td>tanoshikatta desu</td><td>非常開心</td><td>聚會或旅遊結束後表達愉快</td></tr>
+                    <tr><td>8</td><td><strong>お久しぶりです</strong></td><td>ohisashiburi desu</td><td>好久不見</td><td>久違重逢時的問候</td></tr>
+                    <tr><td>9</td><td><strong>元気ですか</strong></td><td>genki desu ka</td><td>你最近還好嗎？</td><td>關心對方近況</td></tr>
+                    <tr><td>10</td><td><strong>はい、元気です</strong></td><td>hai, genki desu</td><td>我很好</td><td>回應對方的關心</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Slide 11: 場景 4 (Part 2: 11~20) -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">Source: wiki/05-daily-social-chat.md (11~20 / 20)</span>
+                <span class="loop-badge">Loop A: 認知負荷拆分 (Part 2)</span>
+            </div>
+            <h2>六、 初次見面與日常寒暄社交 (2/2：破冰話題、祝福與道別)</h2>
+            <table>
+                <thead><tr><th>#</th><th>日文 / 漢字</th><th>羅馬拼音</th><th>中文意思</th><th>記憶錨點與使用情境</th></tr></thead>
+                <tbody>
+                    <tr><td>11</td><td><strong>何が好きですか</strong></td><td>nani ga suki desu ka</td><td>你喜歡什麼？</td><td>聊天破冰話題</td></tr>
+                    <tr><td>12</td><td><strong>趣味は何ですか</strong></td><td>shumi wa nan desu ka</td><td>你的興趣是什麼？</td><td>認識新朋友常用問題</td></tr>
+                    <tr><td>13</td><td><strong>また会いましょう</strong></td><td>mata aimashō</td><td>下次再見</td><td>禮貌道別</td></tr>
+                    <tr><td>14</td><td><strong>気をつけてね</strong></td><td>ki o tsukete ne</td><td>路上小心 / 保重</td><td>送別朋友時的溫暖叮嚀</td></tr>
+                    <tr><td>15</td><td><strong>よかったですね</strong></td><td>yokatta desu ne</td><td>太好了呢！</td><td>聽到對方好消息時的共鳴</td></tr>
+                    <tr><td>16</td><td><strong>おめでとうございます</strong></td><td>omedetō gozaimasu</td><td>恭喜你</td><td>祝賀生日、畢業或好消息</td></tr>
+                    <tr><td>17</td><td><strong>どういたしまして</strong></td><td>dō itashimashite</td><td>不客氣</td><td>回應別人的道謝</td></tr>
+                    <tr><td>18</td><td><strong>しんぱいしないで</strong></td><td>shinpai shinaide</td><td>別擔心</td><td>安慰朋友時使用</td></tr>
+                    <tr><td>19</td><td><strong>がんばってね</strong></td><td>ganbatte ne</td><td>加油！</td><td>替朋友打氣鼓勵</td></tr>
+                    <tr><td>20</td><td><strong>またね</strong></td><td>mata ne</td><td>掰掰 / 回頭見</td><td>熟識朋友間的輕鬆道別</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="critic-box">
+            <strong>Critic 文化考點：</strong><code>大丈夫です (daijōbu desu)</code> 在服務業情境常作「禮貌婉拒（不用了，謝謝）」使用，在便利商店結帳時非常實用。
+        </div>
+    </div>
+
+    <!-- Slide 12: Wiki 知識庫連動無限隨堂測驗 -->
+    <div class="slide">
+        <div>
+            <div class="header-row">
+                <span class="wiki-badge">RAG-Grounded Infinite Quiz (連動全 5 篇 Wiki)</span>
+                <span class="loop-badge" id="quizStreak">連對紀錄：0 題</span>
+            </div>
+            <h2>七、 學習成效驗收：Wiki 知識庫隨機無限測驗</h2>
+            <p class="subtitle">所有題目皆嚴格限定從本簡報 5 篇 Wiki 已教授的條目中隨機抽取，絕無超綱幻覺題。</p>
+        </div>
+
+        <div>
+            <div style="margin-bottom: 12px;">
+                <label for="wikiQuizFilter"><strong>篩選 Wiki 知識來源：</strong></label>
+                <select id="wikiQuizFilter" class="slide-jump" onchange="generateWikiQuestion()">
+                    <option value="all">全部 5 篇 Wiki 綜合抽題</option>
+                    <option value="w1">01. 五十音與片假名視覺聯想</option>
+                    <option value="w2">02. 校園與課堂互動用語</option>
+                    <option value="w3">03. 機場通關與搭機生存術</option>
+                    <option value="w4">04. 藥妝服飾購物與退稅</option>
+                    <option value="w5">05. 初次見面與日常寒暄社交</option>
+                </select>
+            </div>
+
+            <div class="info-card" id="wikiQuizCard">
+                <!-- 動態生成題目 -->
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- 底部導覽控制列 -->
+<div class="controls">
+    <div class="nav-group">
+        <button class="nav-btn" id="prevBtn" onclick="changeSlide(-1)" disabled>← 上一頁</button>
+        <button class="nav-btn" id="nextBtn" onclick="changeSlide(1)">下一頁 →</button>
+    </div>
+    
+    <select id="slideJump" class="slide-jump" onchange="jumpToSlide(this.value)">
+        <option value="0">第 1 頁：封面與架構總覽</option>
+        <option value="1">第 2 頁：日文三種文字與 Critic 陷阱</option>
+        <option value="2">第 3 頁：完整 10 行清音五十音聯想表</option>
+        <option value="3">第 4 頁：校園用語 (1~10)</option>
+        <option value="4">第 5 頁：校園用語 (11~20)</option>
+        <option value="5">第 6 頁：機場用語 (1~10)</option>
+        <option value="6">第 7 頁：機場用語 (11~20)</option>
+        <option value="7">第 8 頁：購物用語 (1~10)</option>
+        <option value="8">第 9 頁：購物用語 (11~20)</option>
+        <option value="9">第 10 頁：社交用語 (1~10)</option>
+        <option value="10">第 11 頁：社交用語 (11~20)</option>
+        <option value="11">第 12 頁：Wiki 知識庫無限隨堂測驗</option>
+    </select>
+</div>
+
+<script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    function updateSlideView() {
+        slides.forEach((s, idx) => s.classList.toggle('active', idx === currentSlide));
+        document.getElementById('prevBtn').disabled = currentSlide === 0;
+        document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+        document.getElementById('slideJump').value = currentSlide;
+        document.getElementById('progressBar').style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+        if (currentSlide === totalSlides - 1) {
+            generateWikiQuestion();
+        }
+    }
+
+    function changeSlide(dir) {
+        const next = currentSlide + dir;
+        if (next >= 0 && next < totalSlides) {
+            currentSlide = next;
+            updateSlideView();
+        }
+    }
+
+    function jumpToSlide(idx) {
+        currentSlide = parseInt(idx, 10);
+        updateSlideView();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') changeSlide(1);
+        if (e.key === 'ArrowLeft') changeSlide(-1);
+    });
+
+    const wikiQuizBank = [
+        { src: "w1", q: "片假名「ア」在 Wiki 視覺錨點中聯想成什麼物件？", opts: ["阿媽的側臉", "單人椅子", "工廠的工字", "撐開的雨傘"], ans: "阿媽的側臉", tip: "來自 01-kana-visual-mnemonics.md：ア 像阿媽側臉，讀音為 a。" },
+        { src: "w1", q: "片假名「シ (shi)」與「ツ (tsu)」在筆順上有什麼差別？", opts: ["シ 由下往上勾；ツ 由上往下點", "兩者寫法完全相同", "シ 只有兩點；ツ 有四點", "シ 讀音為 tsu"], ans: "シ 由下往上勾；ツ 由上往下點", tip: "Critic 檢查點：シ 像臉上三根毛由下往上勾；ツ 像三片生魚片由上往下點。" },
+        { src: "w1", q: "片假名「モ」的讀音與記憶錨點為何？", opts: ["mo（像毛髮）", "ma（像奔跑的馬）", "me（像女字交叉）", "mu（像私厶符號）"], ans: "mo（像毛髮）", tip: "來自 MA 行聯想：モ 長得像「毛」字，讀音為 mo。" },
+        { src: "w2", q: "在學校課堂上沒聽清楚老師說話，想請老師「再說一次」應該說？", opts: ["もう一度お願いします (mō ichido onegaishimasu)", "遅刻します (chikoku shimasu)", "消しゴム (keshigomu)", "時間割 (jikanwari)"], ans: "もう一度お願いします (mō ichido onegaishimasu)", tip: "來自 02-campus-survival.md 第 14 則：mō ichido 代表再一度。" },
+        { src: "w2", q: "日語「時間割 (じかんわり)」在學校情境中是指什麼？", opts: ["課表", "橡皮擦", "圖書館", "畢業證書"], ans: "課表", tip: "來自 02-campus-survival.md 第 16 則：劃分每節課時間的表格就是課表。" },
+        { src: "w3", q: "在機場看到指示牌寫著「手荷物受取所」，代表什麼地方？", opts: ["行李提領處", "海關申報處", "免稅店", "安全檢查處"], ans: "行李提領處", tip: "來自 03-airport-immigration.md 第 4 則：「受取」在日文就是領取的意思。" },
+        { src: "w3", q: "在飛機上想跟空服員要求「靠走道座位」，應該說？", opts: ["通路側 (tsūrogawa)", "窓側 (madogawa)", "搭乗口 (tōjōguchi)", "乗り換え (norikae)"], ans: "通路側 (tsūrogawa)", tip: "來自 03-airport-immigration.md 第 9 則：tsūro 是通道，mado 才是窗戶。" },
+        { src: "w4", q: "日本藥妝店貼出「3 割引 (わりびき)」海報，代表打幾折？", opts: ["打 7 折（減去 3 成）", "打 3 折", "買 3 送 1", "滿 3 萬免稅"], ans: "打 7 折（減去 3 成）", tip: "Critic 檢查點：「割引」是折扣掉的百分比，3 割引代表減去 30%，即打 7 折。" },
+        { src: "w4", q: "在服飾店想詢問店員「可以試穿嗎？」，應該說？", opts: ["試着してもいいですか (shichaku shite mo ii desu ka)", "返品できますか (henpin dekimasu ka)", "別々にしてください (betsubetsu ni shite kudasai)", "売り切れ (urikire)"], ans: "試着してもいいですか (shichaku shite mo ii desu ka)", tip: "來自 04-shopping-taxfree.md 第 6 則：shichaku 是試穿。" },
+        { src: "w5", q: "結帳時店員問「需要袋子嗎？」，回答「大丈夫です (daijōbu desu)」代表什麼意思？", opts: ["不用了，謝謝（禮貌婉拒）", "請給我兩個大袋子", "我要刷卡", "請問廁所在哪裡"], ans: "不用了，謝謝（禮貌婉拒）", tip: "Critic 文化考點：大丈夫です 在日本服務業情境中常用作禮貌婉拒。" },
+        { src: "w5", q: "日語「お久しぶりです (ohisashiburi desu)」通常在什麼時候使用？", opts: ["好久不見重逢時", "初次見面自我介紹時", "祝賀別人畢業時", "請別人借過時"], ans: "好久不見重逢時", tip: "來自 05-daily-social-chat.md 第 8 則：久違重逢時的親切問候。" }
+    ];
+
+    let streak = 0;
+
+    function generateWikiQuestion() {
+        const filter = document.getElementById('wikiQuizFilter').value;
+        const pool = filter === 'all' ? wikiQuizBank : wikiQuizBank.filter(item => item.src === filter);
+        const qItem = pool[Math.floor(Math.random() * pool.length)];
+        const shuffled = [...qItem.opts].sort(() => Math.random() - 0.5);
+
+        const card = document.getElementById('wikiQuizCard');
+        let html = `<p style="font-size:1.05rem; margin:0 0 6px 0;"><strong>【Wiki 隨機抽題】</strong>${qItem.q}</p>`;
+        shuffled.forEach(opt => {
+            html += `<button class="quiz-opt" onclick="checkWikiAns(this, '${opt.replace(/'/g, "\\'")}', '${qItem.ans.replace(/'/g, "\\'")}', '${qItem.tip.replace(/'/g, "\\'")}')">${opt}</button>`;
+        });
+        html += `<div id="wikiQuizFb" class="mnemonic-tip" style="display:none;"></div>`;
+        html += `<div><button id="wikiNextQ" class="nav-btn" style="display:none; margin-top:12px; background:var(--accent);" onclick="generateWikiQuestion()">繼續抽下一題 →</button></div>`;
+        card.innerHTML = html;
+    }
+
+    function checkWikiAns(btn, chosen, correct, tip) {
+        const btns = document.querySelectorAll('#wikiQuizCard .quiz-opt');
+        btns.forEach(b => b.disabled = true);
+        const fb = document.getElementById('wikiQuizFb');
+        fb.style.display = 'block';
+
+        if (chosen === correct) {
+            streak++;
+            btn.style.background = '#d8e8d5';
+            btn.style.borderColor = '#5e6e58';
+            fb.innerHTML = `<strong>答對了！</strong><br>${tip}`;
+        } else {
+            streak = 0;
+            btn.style.background = '#f8d7da';
+            fb.innerHTML = `<strong>答錯囉！正確答案是：【${correct}】</strong><br>${tip}`;
+        }
+        document.getElementById('quizStreak').textContent = `連對紀錄：${streak} 題`;
+        document.getElementById('wikiNextQ').style.display = 'inline-block';
+    }
+</script>
+
+</body>
+</html>
